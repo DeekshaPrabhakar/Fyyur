@@ -133,7 +133,12 @@ To start and run the local development server,
   $ pip install -r requirements.txt
   ```
 
-3. Run the development server:
+3. Set up database using psql on command line:
+  ```
+  createdb fyyur
+  ```
+
+4. Run the development server:
   ```
   $ export FLASK_APP=app
   $ export FLASK_ENV=development # enables debug mode

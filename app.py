@@ -19,9 +19,8 @@ from forms import *
 app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
+# connect to a local postgresql database
 db = SQLAlchemy(app)
-
-# TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -60,7 +59,7 @@ class Artist(db.Model):
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
-
+db.create_all()
 def format_datetime(value, format='medium'):
   date = dateutil.parser.parse(value)
   if format == 'full':
@@ -108,7 +107,8 @@ def venues():
       "num_upcoming_shows": 0,
     }]
   }]
-  return render_template('pages/venues.html', areas=data);
+  venues=Venue.query.all()
+  return render_template('pages/venues.html', areas=venues);
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
