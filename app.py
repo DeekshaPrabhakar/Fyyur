@@ -13,6 +13,7 @@ from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
+import sys
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -240,14 +241,34 @@ def create_venue_form():
 
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
-  # TODO: insert form data as a new Venue record in the db, instead
-  # TODO: modify data to be the data object returned from db insertion
-
-  # on successful db insert, flash success
-  flash('Venue ' + request.form['name'] + ' was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  error = False
+  try:
+    venue = Venue(
+      name = request.form['name'],
+      genres = request.form.getlist('genres'),
+      address = request.form['address'],
+      city = request.form['city'],
+      state = request.form['state'],
+      phone = request.form['phone'],
+      website = request.form['website'],
+      facebook_link = request.form['facebook_link'],
+      seeking_talent = request.form['seeking_talent'] == 'y',
+      seeking_description = request.form['seeking_description'],
+      image_link = request.form['image_link'],
+    )
+    db.session.add(venue)
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  
+  if not error:
+    flash('Venue ' + request.form['name'] + ' was successfully listed!')
+  else:
+    flash('An error occurred. Venue ' + request.form['name'] + ' could not be listed.')
   return render_template('pages/home.html')
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
