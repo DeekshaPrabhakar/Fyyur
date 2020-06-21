@@ -242,6 +242,9 @@ def create_venue_form():
 @app.route('/venues/create', methods=['POST'])
 def create_venue_submission():
   error = False
+  seeking_talent = False
+  if 'seeking_talent' in request.form:
+    seeking_talent = True
   data = {}
   try:
     venue = Venue(
@@ -253,7 +256,7 @@ def create_venue_submission():
       phone = request.form['phone'],
       website = request.form['website'],
       facebook_link = request.form['facebook_link'],
-      seeking_talent = request.form['seeking_talent'] == 'y',
+      seeking_talent = seeking_talent,
       seeking_description = request.form['seeking_description'],
       image_link = request.form['image_link'],
     )
@@ -403,6 +406,9 @@ def edit_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
   error = False
+  seeking_venue = False
+  if 'seeking_venue' in request.form:
+    seeking_venue = True
   artist = Artist.query.get(artist_id)
   data = {}
   try:
@@ -414,7 +420,7 @@ def edit_artist_submission(artist_id):
     artist.website = request.form['website']
     artist.image_link = request.form['image_link']
     artist.facebook_link = request.form['facebook_link']
-    artist.seeking_venue = request.form['seeking_venue'] == 'y'
+    artist.seeking_venue = seeking_venue
     artist.seeking_description = request.form['seeking_description']
 
     db.session.commit()
