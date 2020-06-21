@@ -134,17 +134,28 @@ def venues():
 
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-  # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-  # seach for Hop should return "The Musical Hop".
-  # search for "Music" should return "The Musical Hop" and "Park Square Live Music & Coffee"
-  response={
-    "count": 1,
-    "data": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }
+  # search venues with partial string search and is case-insensitive.
+  search = request.form['search_term']
+  data = []
+  venues = []
+  try:
+    venues = db.session.query(Venue).filter(Venue.name.ilike('%{}%'.format(search))).all()
+
+    for venue in venues:
+      data.append({
+        "id": venue.id,
+        "name": venue.name,
+        "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all())
+      })
+  except:
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  
+  response = {
+    "count": len(venues),
+    "data": data
+  }  
   return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 @app.route('/venues/<int:venue_id>')
