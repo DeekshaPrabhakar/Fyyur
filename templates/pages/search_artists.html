@@ -9,6 +9,8 @@
 			<i class="fas fa-users"></i>
 			<div class="item">
 				<h5>{{ artist.name }}</h5>
+				<h6 class="monospace">{{ artist.num_upcoming_shows }} Upcoming
+					{% if artist.num_upcoming_shows == 1 %}Show{% else %}Shows{% endif %}</h6>
 			</div>
 		</a>
 	</li>
