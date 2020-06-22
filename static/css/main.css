@@ -218,3 +218,10 @@ h2.monospace {
   display: inline-block;
   vertical-align: middle;
 }
+.actions {
+  margin-top: 16px;
+}
+.actions input[type="button"].btn-block {
+  display: inline-block;
+  width: auto;
+}

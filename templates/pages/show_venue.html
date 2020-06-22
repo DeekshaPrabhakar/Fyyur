@@ -43,9 +43,11 @@
 			<i class="fas fa-moon"></i> Not currently seeking talent
 		</p>
 		{% endif %}
-		<p>
+		<div class="actions">
 			<a href="/venues/{{ venue.id }}/edit"><button class="btn btn-primary btn-lg">Edit Venue</button></a>
-		</p>
+			<input id="delete_venue" type="button" value="Delete Venue" class="btn btn-primary btn-lg btn-block"
+				data-id="{{ venue.id }}">
+		</div>
 	</div>
 	<div class="col-sm-6">
 		<img src="{{ venue.image_link }}" alt="Venue Image" />

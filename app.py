@@ -44,7 +44,7 @@ class Venue(db.Model):
     website = db.Column(db.String(200))
     seeking_talent = db.Column(db.Boolean)
     seeking_description = db.Column(db.String)
-    shows = db.relationship('Show', backref='venue', lazy=True)
+    shows = db.relationship('Show', passive_deletes=True, backref='venue', lazy=True)
 
     def __repr__(self):
       return f'<Venue {self.id} {self.name}>'
@@ -63,7 +63,7 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean)
     seeking_description = db.Column(db.String)
-    shows = db.relationship('Show', backref='artist', lazy=True)
+    shows = db.relationship('Show', passive_deletes=True, backref='artist', lazy=True)
 
     def __repr__(self):
       return f'<Artist {self.id} {self.name}>'
@@ -73,8 +73,8 @@ class Show(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     start_time = db.Column(db.DateTime, nullable=False)
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id', ondelete='CASCADE'), unique=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id', ondelete='CASCADE'), unique=False)
 
     def __repr__(self):
       return f'<Show {self.id} {self.start_time}>'
@@ -118,7 +118,7 @@ def venues():
       cityVenues.append({
         "id": venue.id,
         "name": venue.name,
-        "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == venue.id).filter(Show.start_time > datetime.now()).all())
+        "num_upcoming_shows": len(db.session.query(Show).filter(Show.venue_id == venue.id).filter(Show.start_time >= datetime.now()).all())
       })
 
     data.append({
@@ -255,11 +255,26 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
-  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
+  error = False
+  data = {}
+  venue = Venue.query.get(venue_id)
+  data['name'] = venue.name
+  try:
+    data['name'] = venue.name
+    db.session.delete(venue)
+    db.session.commit()
+  except:
+    error = True
+    db.session.rollback()
+    print(sys.exc_info())
+  finally:
+    db.session.close()
+  
+  if not error:
+    flash('Venue ' + data['name'] + ' was successfully deleted!')
+  else:
+    flash('An error occurred. Venue ' + data['name'] + ' could not be deleted.')
+  
   return None
 
 #  Artists
